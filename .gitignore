@@ -31,3 +31,6 @@ coverage.out
 db/db-packr.go
 db/packrd/
 packrd/
+.db/
+datastreamer/
+configs/

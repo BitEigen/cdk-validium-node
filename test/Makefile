@@ -590,15 +590,15 @@ run: ## Runs a full node
 	sleep 1
 	$(RUNZKPROVER)
 	$(RUNAPPROVE)
-	sleep 3
-	$(RUNSYNC)
-	sleep 4
-	$(RUNETHTXMANAGER)
-	$(RUNSEQUENCER)
-	$(RUNSEQUENCESENDER)
-	$(RUNL2GASPRICER)
-	$(RUNAGGREGATOR)
-	$(RUNJSONRPC)
+	# sleep 3
+	# $(RUNSYNC)
+	# sleep 4
+	# $(RUNETHTXMANAGER)
+	# $(RUNSEQUENCER)
+	# $(RUNSEQUENCESENDER)
+	# $(RUNL2GASPRICER)
+	# $(RUNAGGREGATOR)
+	# $(RUNJSONRPC)
 
 .PHONY: run-v1tov2
 run-v1tov2: ## Runs a full node using v1tov2 network

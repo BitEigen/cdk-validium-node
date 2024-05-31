@@ -20,6 +20,7 @@ import (
 	"github.com/0xPolygonHermez/zkevm-node/aggregator"
 	"github.com/0xPolygonHermez/zkevm-node/config"
 	"github.com/0xPolygonHermez/zkevm-node/dataavailability"
+	"github.com/0xPolygonHermez/zkevm-node/dataavailability/celestia"
 	"github.com/0xPolygonHermez/zkevm-node/dataavailability/datacommittee"
 	"github.com/0xPolygonHermez/zkevm-node/db"
 	"github.com/0xPolygonHermez/zkevm-node/etherman"
@@ -322,6 +323,7 @@ func newDataAvailability(c config.Config, st *state.State, etherman *etherman.Cl
 
 	// Backend specific config
 	daProtocolName, err := etherman.GetDAProtocolName()
+	log.Infof("DA Protocol Name: %v\n", daProtocolName)
 	if err != nil {
 		return nil, fmt.Errorf("error getting data availability protocol name: %v", err)
 	}
@@ -352,6 +354,27 @@ func newDataAvailability(c config.Config, st *state.State, etherman *etherman.Cl
 		if err != nil {
 			return nil, err
 		}
+	case string(dataavailability.Celestia):
+		_, pk, err := etherman.LoadAuthFromKeyStore(c.DataAvailability.Celestia.SequencerPrivateKey.Path, c.DataAvailability.Celestia.SequencerPrivateKey.Password)
+		if err != nil {
+			log.Errorf("Cannot load sequencer privatekey")
+			return nil, err
+		}
+
+		cfg := celestia.DAConfig{
+			GasPrice:            c.DataAvailability.Celestia.GasPrice,
+			Rpc:                 c.DataAvailability.Celestia.Rpc,
+			NamespaceId:         c.DataAvailability.Celestia.NamespaceId,
+			AuthToken:           c.DataAvailability.Celestia.AuthToken,
+			SequencerPrivateKey: pk,
+		}
+
+		daBackend, err = celestia.New(cfg)
+		if err != nil {
+			log.Errorf("Cannot create new daBackend: %v\n", err)
+			return nil, err
+		}
+
 	default:
 		return nil, fmt.Errorf("unexpected / unsupported DA protocol: %s", daProtocolName)
 	}

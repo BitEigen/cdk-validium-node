@@ -59,6 +59,7 @@ services:
       - ZKEVM_NODE_MTCLIENT_URI=${ZKEVM_NODE_MTCLIENT_URI}
       - ZKEVM_NODE_EXECUTOR_URI=${ZKEVM_NODE_EXECUTOR_URI}
     volumes:
+      - ./sequencer.keystore:/pk/sequencer.keystore
       - ./config/test.node.config.toml:/app/config.toml
       - ./config/test.genesis.config.json:/app/genesis.json
       - ./:/datastreamer
@@ -139,6 +140,7 @@ services:
       - ZKEVM_NODE_MTCLIENT_URI=${ZKEVM_NODE_MTCLIENT_URI}
       - ZKEVM_NODE_EXECUTOR_URI=${ZKEVM_NODE_EXECUTOR_URI}
     volumes:
+      - ./sequencer.keystore:/pk/sequencer.keystore
       - ./config/test.node.config.toml:/app/config.toml
       - ./config/test.genesis.config.json:/app/genesis.json
     command:
@@ -160,6 +162,7 @@ services:
       - ZKEVM_NODE_EXECUTOR_URI=${ZKEVM_NODE_EXECUTOR_URI}
       - ZKEVM_NODE_ETHERMAN_URL=http://zkevm-v1tov2-l1-network:8545
     volumes:
+      - ./sequencer.keystore:/pk/sequencer.keystore
       - ./config/test.node.config.toml:/app/config.toml
       - ./config/test.genesis-v1tov2.config.json:/app/genesis.json
     command:
@@ -179,6 +182,7 @@ services:
     volumes:
       - ./config/test.node.config.toml:/app/config.toml
       - ./config/test.genesis.config.json:/app/genesis.json
+      - ./sequencer.keystore:/pk/sequencer.keystore
     command:
       - "/bin/sh"
       - "-c"
@@ -196,6 +200,7 @@ services:
       - ZKEVM_NODE_ETHERMAN_URL=http://zkevm-v1tov2-l1-network:8545
       - ZKEVM_NODE_AGGREGATOR_UPGRADEETROGBATCHNUMBER=2
     volumes:
+      - ./sequencer.keystore:/pk/sequencer.keystore
       - ./config/test.node.config.toml:/app/config.toml
       - ./config/test.genesis-v1tov2.config.json:/app/genesis.json
     command:
@@ -213,6 +218,7 @@ services:
       - ZKEVM_NODE_MTCLIENT_URI=${ZKEVM_NODE_MTCLIENT_URI}
       - ZKEVM_NODE_EXECUTOR_URI=${ZKEVM_NODE_EXECUTOR_URI}
     volumes:
+      - ./sequencer.keystore:/pk/sequencer.keystore
       - ./config/test.node.config.toml:/app/config.toml
       - ./config/test.genesis.config.json:/app/genesis.json
     command:
@@ -231,6 +237,7 @@ services:
       - ZKEVM_NODE_EXECUTOR_URI=${ZKEVM_NODE_EXECUTOR_URI}
       - ZKEVM_NODE_ETHERMAN_URL=http://zkevm-v1tov2-l1-network:8545
     volumes:
+      - ./sequencer.keystore:/pk/sequencer.keystore
       - ./config/test.node.config.toml:/app/config.toml
       - ./config/test.genesis-v1tov2.config.json:/app/genesis.json
     command:
@@ -278,6 +285,7 @@ services:
     environment:
       - ZKEVM_NODE_POOL_DB_HOST=zkevm-pool-db
     volumes:
+      - ./sequencer.keystore:/pk/sequencer.keystore
       - ./test.keystore:/pk/keystore
       - ./config/test.node.config.toml:/app/config.toml
       - ./config/test.genesis.config.json:/app/genesis.json
@@ -293,6 +301,7 @@ services:
       - ZKEVM_NODE_POOL_DB_HOST=zkevm-pool-db
       - ZKEVM_NODE_ETHERMAN_URL=http://zkevm-v1tov2-l1-network:8545
     volumes:
+      - ./sequencer.keystore:/pk/sequencer.keystore
       - ./test.keystore:/pk/keystore
       - ./config/test.node.config.toml:/app/config.toml
       - ./config/test.genesis-v1tov2.config.json:/app/genesis.json
@@ -453,7 +462,8 @@ services:
 
   zkevm-mock-l1-network:
     container_name: zkevm-mock-l1-network
-    image: 0xpolygon/cdk-validium-contracts:forkId8
+    # image: 0xpolygon/cdk-validium-contracts:forkId8
+    image: biteigen/geth-zkevm-contracts:celestia
     ports:
       - 8545:8545
       - 8546:8546
@@ -530,6 +540,7 @@ services:
     environment:
       - ZKEVM_NODE_STATE_DB_HOST=zkevm-state-db
     volumes:
+      - ./sequencer.keystore:/pk/sequencer.keystore
       - ./sequencer.keystore:/pk/keystore
       - ./config/test.node.config.toml:/app/config.toml
       - ./config/test.genesis.config.json:/app/genesis.json

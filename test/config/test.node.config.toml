@@ -203,3 +203,11 @@ Host = "zkevm-state-db"
 Port = "5432"
 EnableLog = false
 MaxConns = 200
+
+[DataAvailability]
+	[DataAvailability.Celestia]
+	GasPrice = -1
+	Rpc = "ws://192.168.1.49:26658"
+	NamespaceId = "42690c204d39600fddd3"
+	AuthToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJBbGxvdyI6WyJwdWJsaWMiLCJyZWFkIiwid3JpdGUiLCJhZG1pbiJdfQ.u4v_bgVxWKf-VNMmkjZPHbgHdTr80wBWCAPibdmXMcs"
+	SequencerPrivateKey = {Path = "/pk/sequencer.keystore", Password = "testonly"}
