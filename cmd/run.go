@@ -355,10 +355,14 @@ func newDataAvailability(c config.Config, st *state.State, etherman *etherman.Cl
 			return nil, err
 		}
 	case string(dataavailability.Celestia):
-		_, pk, err := etherman.LoadAuthFromKeyStore(c.DataAvailability.Celestia.SequencerPrivateKey.Path, c.DataAvailability.Celestia.SequencerPrivateKey.Password)
-		if err != nil {
-			log.Errorf("Cannot load sequencer privatekey")
-			return nil, err
+		var pk *ecdsa.PrivateKey
+
+		if isSequenceSender {
+			_, pk, err = etherman.LoadAuthFromKeyStore(c.DataAvailability.Celestia.SequencerPrivateKey.Path, c.DataAvailability.Celestia.SequencerPrivateKey.Password)
+			if err != nil {
+				log.Errorf("Cannot load sequencer privatekey")
+				return nil, err
+			}
 		}
 
 		cfg := celestia.DAConfig{
