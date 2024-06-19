@@ -6,6 +6,7 @@ import (
 	"crypto/ecdsa"
 	"encoding/binary"
 	"encoding/hex"
+	"encoding/json"
 	"errors"
 	"fmt"
 
@@ -133,57 +134,101 @@ func (c *CelestiaBackend) postBatchData(ctx context.Context, batchData []byte) (
 	return buf.Bytes(), nil
 }
 
-// PostSequence posts batches data to Celestia
+// PostSequence posts batches data to Celestia and returns DA message
 func (c *CelestiaBackend) PostSequence(ctx context.Context, batchesData [][]byte) ([]byte, error) {
 	var sequence daTypes.Sequence
-	var blobPointers []byte
 	for _, batchData := range batchesData {
 		sequence = append(sequence, batchData)
 	}
 
-	for _, data := range sequence.OffChainData() {
-		// celestia does not support key value data
-		// so we have to query blob by blobPointer
-		blobPointer, err := c.postBatchData(ctx, data.Value)
-		if err != nil {
-			log.Error("Cannot post batchdata to celestia")
-			return nil, err
-		}
-		blobPointers = append(blobPointers, blobPointer...)
+	// submit sequence to celestia
+	// encode sequence to []byte
+	blobData, err := c.encodeSequence(sequence)
+	if err != nil {
+		return nil, err
 	}
+	// celestia does not support key value data
+	// so we need blobPointer to query blob data
+	blobPointer, err := c.postBatchData(ctx, blobData)
+	if err != nil {
+		log.Error("Cannot post batchdata to celestia")
+		return nil, err
+	}
+
 	signedSequence, err := sequence.Sign(c.Cfg.SequencerPrivateKey)
 	if err != nil {
 		log.Error("Cannot sign sequence")
 		return nil, err
 	}
-	daMessage := append(signedSequence.Signature, blobPointers...)
+
+	daMessage := append(signedSequence.Signature, blobPointer...)
 	return daMessage, nil
 }
 
 // GetSequence gets batches from celestia
 func (c *CelestiaBackend) GetSequence(ctx context.Context, batchHashes []common.Hash, dataAvailabilityMessage []byte) ([][]byte, error) {
-	var res [][]byte
 	msgLen := len(dataAvailabilityMessage)
 
-	if msgLen < crypto.SignatureLength || (msgLen-crypto.SignatureLength)%blobSize != 0 {
+	if msgLen != blobSize+crypto.SignatureLength {
 		return nil, fmt.Errorf("wrong da message length: %d", msgLen)
 	}
 
-	for i := 0; i < (msgLen-crypto.SignatureLength)/blobSize; i++ {
-		start := blobSize*i + crypto.SignatureLength
-		blobMessage := dataAvailabilityMessage[start : start+blobSize]
+	start := crypto.SignatureLength
+	blobMessage := dataAvailabilityMessage[start:msgLen]
 
-		blobPointer := BlobPointer{}
-		err := blobPointer.UnmarshalBinary(blobMessage[:])
+	blobPointer := BlobPointer{}
+	err := blobPointer.UnmarshalBinary(blobMessage[:])
+	if err != nil {
+		log.Errorf("Cannot unmarshal BlobMessage %s\n", hex.EncodeToString(blobMessage))
+		return nil, err
+	}
+	blob, err := c.Client.Blob.Get(ctx, blobPointer.BlockHeight, c.Namespace, blobPointer.TxCommitment[:])
+	if err != nil {
+		return nil, err
+	}
+	res, err := c.decodeBlobData(blob.Data)
+	if err != nil {
+		log.Errorf("Cannot decode blob data\n")
+		return nil, err
+	}
+	return res, nil
+}
+
+func (c *CelestiaBackend) encodeSequence(sequence daTypes.Sequence) ([]byte, error) {
+	sequenceOfText := []string{}
+
+	for _, batchData := range ([]daTypes.ArgBytes)(sequence) {
+		batchText, err := batchData.MarshalText()
 		if err != nil {
-			log.Errorf("Cannot unmarshal BlobMessage")
+			log.Errorf("Cannot marshal batchData %s\n", hex.EncodeToString(batchData))
 			return nil, err
 		}
-		blob, err := c.Client.Blob.Get(ctx, blobPointer.BlockHeight, c.Namespace, blobPointer.TxCommitment[:])
+		sequenceOfText = append(sequenceOfText, string(batchText))
+	}
+
+	res, err := json.Marshal(sequenceOfText)
+	if err != nil {
+		log.Errorf("Cannot marshal sequence\n")
+		return nil, err
+	}
+	return res, nil
+}
+
+func (c *CelestiaBackend) decodeBlobData(blobData []byte) ([][]byte, error) {
+	encodedBatchData := []daTypes.ArgBytes{}
+	err := json.Unmarshal(blobData, &encodedBatchData)
+	if err != nil {
+		log.Errorf("Cannot unmarshal blobData: %v", encodedBatchData)
+		return nil, err
+	}
+	res := [][]byte{}
+	for _, batchData := range encodedBatchData {
+		err := batchData.UnmarshalText(batchData)
 		if err != nil {
+			log.Errorf("Cannot unmarshal batchData %s\n", hex.EncodeToString(batchData))
 			return nil, err
 		}
-		res = append(res, blob.Data)
+		res = append(res, batchData)
 	}
 	return res, nil
 }

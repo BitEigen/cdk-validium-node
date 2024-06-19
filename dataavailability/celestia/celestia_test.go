@@ -21,7 +21,7 @@ var mess string
 
 func init() {
 	mess = "testData"
-	batchesData = [][]byte{[]byte(mess)}
+	batchesData = [][]byte{[]byte(mess), []byte("testData2"), []byte("testData3")}
 	pk, err := crypto.HexToECDSA("f26d6aca18e0c75ac948a262d4b9435a8173515f84c258d1f90d171143039024")
 	if err != nil {
 		panic("Cannot load private key")
@@ -35,7 +35,7 @@ func init() {
 		SequencerPrivateKey: pk,
 	}
 
-	daMessage = "8f442a10d8bcc87541d6d4fa4719c0fef2ab6af662c92daf26c937f199b2f5246030344aed6204a92f1b01b0ab793b97ab9664bc433673c6b48bb180eaac676f1c00000000001da272e7277f5ce35b9a2f9c11331979c3f935d7650efb50e12bb836d1c76787c4e998"
+	daMessage = "a890635d027675de52aaa6dd0ffec3593ade0c4309139f3c7d61ec4c2c5e146654dbb150f00fe8dbad3e2115c63e8068527de99d254354d28f5212b4a78cf4161c00000000001dc982d397be9a0235e0816afb988f756c0782f77cc96a9c0898a22d2a822a1489137e"
 	da, err = celestia.New(cfg)
 	if err != nil {
 		panic("cannot create celestia da")
