@@ -20,6 +20,7 @@ import (
 	"github.com/0xPolygonHermez/zkevm-node/aggregator"
 	"github.com/0xPolygonHermez/zkevm-node/config"
 	"github.com/0xPolygonHermez/zkevm-node/dataavailability"
+	"github.com/0xPolygonHermez/zkevm-node/dataavailability/avail"
 	"github.com/0xPolygonHermez/zkevm-node/dataavailability/celestia"
 	"github.com/0xPolygonHermez/zkevm-node/dataavailability/datacommittee"
 	"github.com/0xPolygonHermez/zkevm-node/db"
@@ -350,6 +351,20 @@ func newDataAvailability(c config.Config, st *state.State, etherman *etherman.Cl
 			dacAddr,
 			pk,
 			dataCommitteeClient.NewFactory(),
+		)
+		if err != nil {
+			return nil, err
+		}
+	case string(dataavailability.Avail):
+		dacAddr, err := etherman.GetDAProtocolAddr()
+		if err != nil {
+			return nil, fmt.Errorf("error getting trusted sequencer URI. Error: %v", err)
+		}
+
+		daBackend, err = avail.New(
+			c.Etherman.URL,
+			dacAddr,
+			avail.DAConfig(c.DataAvailability.Avail),
 		)
 		if err != nil {
 			return nil, err

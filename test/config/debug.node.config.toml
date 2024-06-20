@@ -178,3 +178,10 @@ ProfilingEnabled = false
 	NamespaceId = "42690c204d39600fddd3"
 	AuthToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJBbGxvdyI6WyJwdWJsaWMiLCJyZWFkIiwid3JpdGUiLCJhZG1pbiJdfQ.u4v_bgVxWKf-VNMmkjZPHbgHdTr80wBWCAPibdmXMcs"
 	SequencerPrivateKey = {Path = "./test/sequencer.keystore", Password = "testonly"}
+	[DataAvailability.Avail]
+  Seed = "0x7e6a4c0e4a9c1b4b4b5f9e4f9"
+  WsApiUrl = "ws://"
+  HttpApiUrl = "http://"
+  BridgeApiUrl = "http://"
+  AppId = "0x2"
+  Timeout = "5s"

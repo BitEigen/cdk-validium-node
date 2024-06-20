@@ -1,6 +1,7 @@
 package dataavailability
 
 import (
+	"github.com/0xPolygonHermez/zkevm-node/dataavailability/avail"
 	"github.com/0xPolygonHermez/zkevm-node/dataavailability/celestia"
 )
 
@@ -13,10 +14,15 @@ const (
 
 	// Celestia protocol
 	Celestia DABackendType = "Celestia"
+
+	// Avail protocol
+	Avail DABackendType = "Avail"
 )
 
 // Config for dataavailability
 type Config struct {
-	// config for protocol Celestia
+	// config for DA protocol Celestia
 	Celestia celestia.Config `mapstructure:"Celestia"`
+  // config for DA protocol Avail
+	Avail    avail.Config    `mapstructure:"Avail"`
 }
