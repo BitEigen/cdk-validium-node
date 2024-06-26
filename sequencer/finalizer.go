@@ -260,14 +260,12 @@ func (f *finalizer) checkL1InfoTreeUpdate(ctx context.Context) {
 			// Sanity check l1BlockState (l1InfoRoot.BlockNumber) blockhash matches blockhash on ethereum. We skip it if l1InfoRoot.BlockNumber == 0 (empty tree)
 			if l1InfoRoot.BlockNumber > 0 {
 				l1BlockState, err := f.stateIntf.GetBlockByNumber(ctx, l1InfoRoot.BlockNumber, nil)
-        log.Infof("l1BlockState: %s\n", l1BlockState.BlockHash)
 				if err != nil {
 					log.Errorf("error getting L1 block %d from the state, error: %v", l1InfoRoot.BlockNumber, err)
 					continue
 				}
 
 				l1BlockEth, err := f.etherman.HeaderByNumber(ctx, new(big.Int).SetUint64(l1InfoRoot.BlockNumber))
-        log.Infof("l1BlockEth: %s\n", l1BlockEth.Hash())
 				if err != nil {
 					log.Errorf("error getting L1 block %d from ethereum, error: %v", l1InfoRoot.BlockNumber, err)
 					continue
@@ -275,7 +273,7 @@ func (f *finalizer) checkL1InfoTreeUpdate(ctx context.Context) {
 				if l1BlockState.BlockHash != l1BlockEth.Hash() {
 					log.Warnf("skipping use of l1InfoTreeIndex %d, L1 block %d blockhash %s doesn't match blockhash on ethereum %s (L1 reorg?)",
 						l1InfoRoot.L1InfoTreeIndex, l1InfoRoot.BlockNumber, l1BlockState.BlockHash, l1BlockEth.Hash())
-					continue
+					return
 				}
 			}
 
