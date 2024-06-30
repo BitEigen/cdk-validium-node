@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/0xPolygonHermez/zkevm-node/pool"
+	rskTypes "github.com/0xPolygonHermez/zkevm-node/rsk/types"
 	"github.com/0xPolygonHermez/zkevm-node/state"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
@@ -35,7 +36,7 @@ type etherman interface {
 	TrustedSequencer() (common.Address, error)
 	GetLatestBatchNumber() (uint64, error)
 	GetLatestBlockNumber(ctx context.Context) (uint64, error)
-	HeaderByNumber(ctx context.Context, number *big.Int) (*types.Header, error)
+	HeaderByNumber(ctx context.Context, number *big.Int) (*rskTypes.RskHeader, error)
 }
 
 // stateInterface gathers the methods required to interact with the state.

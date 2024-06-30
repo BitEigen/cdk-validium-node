@@ -273,7 +273,7 @@ func (f *finalizer) checkL1InfoTreeUpdate(ctx context.Context) {
 				if l1BlockState.BlockHash != l1BlockEth.Hash() {
 					log.Warnf("skipping use of l1InfoTreeIndex %d, L1 block %d blockhash %s doesn't match blockhash on ethereum %s (L1 reorg?)",
 						l1InfoRoot.L1InfoTreeIndex, l1InfoRoot.BlockNumber, l1BlockState.BlockHash, l1BlockEth.Hash())
-					// return
+					continue
 				}
 			}
 

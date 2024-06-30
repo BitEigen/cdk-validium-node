@@ -36,12 +36,14 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/accounts/keystore"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/rpc"
 	"golang.org/x/crypto/sha3"
+  rskTypes "github.com/0xPolygonHermez/zkevm-node/rsk/types"
 )
 
 var (
@@ -190,6 +192,7 @@ type externalGasProviders struct {
 // Client is a simple implementation of EtherMan.
 type Client struct {
 	EthClient                ethereumClient
+	RpcClient                *rpc.Client
 	OldZkEVM                 *oldpolygonzkevm.Oldpolygonzkevm
 	EtrogZKEVM               *etrogpolygonzkevm.Etrogpolygonzkevm
 	ZkEVM                    *polygonzkevm.Polygonzkevm
@@ -287,6 +290,7 @@ func NewClient(cfg Config, l1Config L1Config, da dataavailability.BatchDataProvi
 
 	return &Client{
 		EthClient:                ethClient,
+		RpcClient:                ethClient.Client(),
 		ZkEVM:                    zkevm,
 		EtrogZKEVM:               etrogZkevm,
 		OldZkEVM:                 oldZkevm,
@@ -1652,8 +1656,29 @@ func hash(data ...[32]byte) [32]byte {
 
 // HeaderByNumber returns a block header from the current canonical chain. If number is
 // nil, the latest known header is returned.
-func (etherMan *Client) HeaderByNumber(ctx context.Context, number *big.Int) (*types.Header, error) {
-	return etherMan.EthClient.HeaderByNumber(ctx, number)
+// implement with rsk Header
+func (etherMan *Client) HeaderByNumber(ctx context.Context, number *big.Int) (*rskTypes.RskHeader, error) {
+	var head *rskTypes.RskHeader
+	err := etherMan.RpcClient.CallContext(ctx, &head, "eth_getBlockByNumber", ToBlockNumArg(number), false)
+	if err == nil && head == nil {
+		err = ethereum.NotFound
+	}
+	return head, err
+}
+
+func ToBlockNumArg(number *big.Int) string {
+	if number == nil {
+		return "latest"
+	}
+	if number.Sign() >= 0 {
+		return hexutil.EncodeBig(number)
+	}
+	// It's negative.
+	if number.IsInt64() {
+		return rpc.BlockNumber(number.Int64()).String()
+	}
+	// It's negative and large, which is invalid.
+	return fmt.Sprintf("<invalid %d>", number)
 }
 
 // EthBlockByNumber function retrieves the ethereum block information by ethereum block number.
