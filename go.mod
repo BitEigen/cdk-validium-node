@@ -2,6 +2,8 @@ module github.com/0xPolygonHermez/zkevm-node
 
 go 1.21
 
+replace github.com/ethereum/go-ethereum => github.com/biteigen/go-ethereum v0.0.0-20240702102352-bdd54996dbdb
+
 require (
 	github.com/0xPolygonHermez/zkevm-data-streamer v0.1.18
 	github.com/didip/tollbooth/v6 v6.1.2
@@ -175,7 +177,6 @@ require (
 	github.com/0xPolygon/agglayer v0.0.1
 	github.com/0xPolygon/cdk-data-availability v0.0.5
 	github.com/fatih/color v1.16.0
-	github.com/joho/godotenv v1.5.1
 	github.com/prometheus/client_golang v1.18.0
 	golang.org/x/exp v0.0.0-20231110203233-9a3e6036ecaa
 )
